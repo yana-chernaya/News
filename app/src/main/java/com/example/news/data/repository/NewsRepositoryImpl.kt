@@ -1,6 +1,7 @@
 package com.example.news.data.repository
 
 import com.example.news.domain.entity.Article
+import com.example.news.domain.entity.Language
 import com.example.news.domain.repository.NewsRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -15,7 +16,7 @@ class NewsRepositoryImpl @Inject constructor(): NewsRepository {
         TODO("Not yet implemented")
     }
 
-    override suspend fun updateArticlesForTopic(topic: String) {
+    override suspend fun updateArticlesForTopic(topic: String, language: Language) {
         TODO("Not yet implemented")
     }
 
@@ -23,7 +24,7 @@ class NewsRepositoryImpl @Inject constructor(): NewsRepository {
         TODO("Not yet implemented")
     }
 
-    override suspend fun updateArticlesForAllSubscriptions() {
+    override suspend fun updateArticlesForAllSubscriptions(language: Language) {
         TODO("Not yet implemented")
     }
 
