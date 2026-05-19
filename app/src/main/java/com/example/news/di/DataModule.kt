@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.news.data.local.NewsDao
 import com.example.news.data.local.NewsDatabase
+import com.example.news.data.remote.NewsApiService
 import com.example.news.data.repository.NewsRepositoryImpl
 import com.example.news.data.repository.SettingsRepositoryImpl
 import com.example.news.domain.repository.NewsRepository
@@ -14,6 +15,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.Converter
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import retrofit2.create
 import javax.inject.Singleton
 
 @Module
@@ -53,5 +60,43 @@ interface DataModule {
         fun provideNewsDao(
             database: NewsDatabase
         ): NewsDao = database.newsDao()
+
+        @Provides
+        @Singleton
+        fun provideJson(): Json {
+            return Json {
+                ignoreUnknownKeys = true
+                coerceInputValues = true
+            }
+        }
+
+        @Provides
+        @Singleton
+        fun provideConverterFactory(
+            json: Json
+        ): Converter.Factory {
+            return json.asConverterFactory(
+                "application/json".toMediaType()
+            )
+        }
+
+        @Provides
+        @Singleton
+        fun provideRetrofit(
+            converterFactory: Converter.Factory
+        ): Retrofit {
+            return Retrofit.Builder()
+                .baseUrl("https://newsapi.org/")
+                .addConverterFactory(converterFactory)
+                .build()
+        }
+
+        @Provides
+        @Singleton
+        fun provideApiService(
+            retrofit: Retrofit
+        ): NewsApiService {
+            return retrofit.create()
+        }
     }
 }
