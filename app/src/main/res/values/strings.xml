@@ -34,4 +34,8 @@
     <string name="show_notifications_about_new_articles">Show notifications about new articles</string>
     <string name="update_only_via_wi_fi">Update only via Wi-Fi</string>
     <string name="save_mobile_data">Save mobile data</string>
+
+    <string name="new_articles_notification_title">New articles</string>
+    <string name="update_subscriptions">Update %1$d subscriptions: %2$s</string>
+    <string name="new_articles_name_of_channel">New articles</string>
 </resources>

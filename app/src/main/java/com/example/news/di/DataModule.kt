@@ -1,6 +1,8 @@
 package com.example.news.di
 
+import android.app.NotificationManager
 import android.content.Context
+import androidx.core.content.getSystemService
 import androidx.room.Room
 import androidx.work.WorkManager
 import com.example.news.data.local.NewsDao
@@ -105,5 +107,11 @@ interface DataModule {
         fun provideWorkManager(
             @ApplicationContext context: Context
         ): WorkManager = WorkManager.getInstance(context)
+
+        @Provides
+        @Singleton
+        fun provideNotificationManager(
+            @ApplicationContext context: Context
+        ): NotificationManager? = context.getSystemService<NotificationManager>()
     }
 }
