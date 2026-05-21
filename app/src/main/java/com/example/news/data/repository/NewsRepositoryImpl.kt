@@ -1,6 +1,12 @@
 package com.example.news.data.repository
 
 import android.util.Log
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.example.news.data.background.RefreshDataWorker
 import com.example.news.data.local.ArticleDbModel
 import com.example.news.data.local.NewsDao
 import com.example.news.data.local.SubscriptionDbModel
@@ -10,6 +16,7 @@ import com.example.news.data.mapper.toQueryParam
 import com.example.news.data.remote.NewsApiService
 import com.example.news.domain.entity.Article
 import com.example.news.domain.entity.Language
+import com.example.news.domain.entity.RefreshConfig
 import com.example.news.domain.repository.NewsRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
@@ -17,11 +24,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class NewsRepositoryImpl @Inject constructor(
     private val newsDao: NewsDao,
     private val newsApiService: NewsApiService,
+    private val workManager: WorkManager
 ) : NewsRepository {
 
     override fun getAllSubscriptions(): Flow<List<String>> {
@@ -74,5 +83,31 @@ class NewsRepositoryImpl @Inject constructor(
 
     override suspend fun clearAllArticles(topics: List<String>) {
         newsDao.deleteArticlesByTopics(topics)
+    }
+
+    override fun startBackgroundRefresh(refreshConfig: RefreshConfig) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(
+                if (refreshConfig.wifiOnly) {
+                    NetworkType.UNMETERED
+                } else {
+                    NetworkType.CONNECTED
+                }
+            )
+            .setRequiresBatteryNotLow(true)
+            .build()
+
+        val request = PeriodicWorkRequestBuilder<RefreshDataWorker>(
+            repeatInterval = refreshConfig.interval.minutes.toLong(),
+            repeatIntervalTimeUnit = TimeUnit.MINUTES
+        )
+            .setConstraints(constraints)
+            .build()
+
+        workManager.enqueueUniquePeriodicWork(
+            uniqueWorkName = "Refresh data",
+            existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+            request = request
+        )
     }
 }
