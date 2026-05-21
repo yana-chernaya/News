@@ -10,8 +10,8 @@ class UpdateSubscribedArticlesUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) {
 
-    suspend operator fun invoke() {
+    suspend operator fun invoke(): List<String> {
         val settings = settingsRepository.getSettings().first()
-        newsRepository.updateArticlesForAllSubscriptions(settings.language)
+        return newsRepository.updateArticlesForAllSubscriptions(settings.language)
     }
 }
