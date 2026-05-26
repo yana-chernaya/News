@@ -94,4 +94,5 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.core.splashscreen)
 }
